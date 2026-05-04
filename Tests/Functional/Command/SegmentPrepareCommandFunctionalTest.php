@@ -110,7 +110,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         Assert::assertSame(4, $this->countTotalMembershipRows($segmentId));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
-            '--alias'      => $resolvedAlias,
+            '--alias'           => $resolvedAlias,
             '--permanent-clear' => true,
         ]);
 
@@ -128,8 +128,8 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         $resolvedAlias = (string) $segment->getAlias();
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
-            '--alias'      => $resolvedAlias,
-            '--clear'      => true,
+            '--alias'           => $resolvedAlias,
+            '--clear'           => true,
             '--permanent-clear' => true,
         ]);
 
@@ -205,9 +205,9 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         Assert::assertSame(5, $this->countActiveMembershipRows((int) $segment->getId()));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
-            '--alias'      => $resolvedAlias,
+            '--alias'           => $resolvedAlias,
             '--permanent-clear' => true,
-            '--batch-size' => '2',
+            '--batch-size'      => '2',
         ]);
 
         Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());

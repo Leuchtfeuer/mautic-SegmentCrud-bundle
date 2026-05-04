@@ -46,7 +46,7 @@ class SegmentPrepareCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $wantsClear     = (bool) $input->getOption('clear');
+        $wantsClear          = (bool) $input->getOption('clear');
         $wantsPermanentClear = (bool) $input->getOption('permanent-clear');
         if ($wantsClear && $wantsPermanentClear) {
             $io->error('Use either --clear or --permanent-clear, not both.');
@@ -107,9 +107,9 @@ class SegmentPrepareCommand extends Command
         $clearSummary = '';
         if ($result->clearedMembers > 0) {
             $clearSummary = match ($result->clearMode) {
-                'hard'  => sprintf(', %d membership row(s) deleted', $result->clearedMembers),
+                'hard'       => sprintf(', %d membership row(s) deleted', $result->clearedMembers),
                 'permanent'  => sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers),
-                default => '',
+                default      => '',
             };
         }
 
