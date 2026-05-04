@@ -18,7 +18,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
 {
     protected $useCleanupRollback = false;
 
-    public function testClearHardDeletesMembershipRowsWhenUsingAlias(): void
+    public function testClearSoftDeletesMembershipRowsWhenUsingAlias(): void
     {
         $this->installSegmentCrudPlugin(true);
 
@@ -38,7 +38,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         Assert::assertSame(0, $this->countTotalMembershipRows((int) $segment->getId()));
     }
 
-    public function testClearHardDeletesMembershipRowsWhenUsingId(): void
+    public function testClearSoftDeletesMembershipRowsWhenUsingId(): void
     {
         $this->installSegmentCrudPlugin(true);
 
