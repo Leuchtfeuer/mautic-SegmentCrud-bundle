@@ -66,16 +66,16 @@ final class SegmentPrepareService
 
         $clearMode = 'none';
 
-        if ($options->clear && $options->softClear) {
-            throw new \InvalidArgumentException('Use either --clear or --soft-clear, not both.');
+        if ($options->clear && $options->permanentClear) {
+            throw new \InvalidArgumentException('Use either --clear or --permanent-clear, not both.');
         }
 
         if ($options->clear) {
             $clearedMembers = $this->clearAllMembersHard($segment, $output);
             $clearMode      = 'hard';
-        } elseif ($options->softClear) {
-            $clearedMembers = $this->clearAllMembersSoft($segment, $output);
-            $clearMode      = 'soft';
+        } elseif ($options->permanentClear) {
+            $clearedMembers = $this->clearAllMembersPermanent($segment, $output);
+            $clearMode      = 'permanent';
         }
 
         return new SegmentPrepareResult($segment, $created, $metadataUpdated, $clearedMembers, $clearMode);
@@ -188,11 +188,11 @@ final class SegmentPrepareService
     }
 
     /**
-     * Sets manually_removed = 1 on every active membership (soft clear). Rows remain in lead_lists_leads.
+     * Sets manually_removed = 1 on every active membership (permanent clear). Rows remain in lead_lists_leads.
      *
      * @throws \Doctrine\DBAL\Exception
      */
-    private function clearAllMembersSoft(LeadList $segment, OutputInterface $output): int
+    private function clearAllMembersPermanent(LeadList $segment, OutputInterface $output): int
     {
         $segmentId = (int) $segment->getId();
         if ($segmentId < 1) {

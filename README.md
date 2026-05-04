@@ -1,6 +1,6 @@
 # Leuchtfeuer Segment CRUD
 
-Console tooling to create or update lead segments by **alias** or **id**, and optionally **clear segment membership** in two ways: **`--clear`** deletes rows from `lead_lists_leads` (hard), or **`--soft-clear`** sets `manually_removed = 1` on active rows while keeping the records (useful for Databridge-style / prep workflows where you need one or the other).
+Console tooling to create or update lead segments by **alias** or **id**, and optionally **clear segment membership** in two ways: **`--clear`** deletes rows from `lead_lists_leads` (hard), or **`--permanent-clear`** sets `manually_removed = 1` on active rows while keeping the records (useful for Databridge-style / prep workflows where you need one or the other).
 
 ## Overview
 
@@ -53,7 +53,7 @@ From the **Mautic project root** (where `bin/console` lives):
 php bin/console leuchtfeuer:segment:prepare --help
 ```
 
-That lists all options (`--alias`, `--id`, `--name`, `--desc`, `--noupdate`, `--nocreate`, `--clear`, `--soft-clear`, `--batch-size`, etc.).
+That lists all options (`--alias`, `--id`, `--name`, `--desc`, `--noupdate`, `--nocreate`, `--clear`, `--permanent-clear`, `--batch-size`, etc.).
 
 Typical examples (after the plugin is published):
 
@@ -61,8 +61,8 @@ Typical examples (after the plugin is published):
 # Hard clear: remove all membership rows for this segment (batched DELETE on lead_lists_leads)
 php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --clear
 
-# Soft clear: set manually_removed = 1 on every active membership; rows remain (batched UPDATE)
-php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --soft-clear
+# Permanent clear: set manually_removed = 1 on every active membership; rows remain (batched UPDATE)
+php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --permanent-clear
 
 # Same by numeric segment id (segment must already exist)
 php bin/console leuchtfeuer:segment:prepare --id=123 --clear
@@ -71,12 +71,12 @@ php bin/console leuchtfeuer:segment:prepare --id=123 --clear
 php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --name="New name"
 ```
 
-Use `--help` for the authoritative option list and defaults (e.g. `--batch-size` applies to both `--clear` and `--soft-clear`).
+Use `--help` for the authoritative option list and defaults (e.g. `--batch-size` applies to both `--clear` and `--permanent-clear`).
 
-Do **not** pass **`--clear` and `--soft-clear` together** — the command exits with an error.
+Do **not** pass **`--clear` and `--permanent-clear` together** — the command exits with an error.
 
 - **`--clear`:** batched `DELETE` — no rows left for that segment in `lead_lists_leads`.
-- **`--soft-clear`:** batched `UPDATE … SET manually_removed = 1 WHERE manually_removed = 0` — active membership (what Mautic treats as “in segment”) becomes zero, but history rows stay in the table.
+- **`--permanent-clear`:** batched `UPDATE … SET manually_removed = 1 WHERE manually_removed = 0` — active membership (what Mautic treats as “in segment”) becomes zero, but history rows stay in the table.
 
 ### Mautic events
 

@@ -97,11 +97,11 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         Assert::assertSame(2, $this->countActiveMembershipRows($segmentId));
     }
 
-    public function testSoftClearMarksManuallyRemovedButKeepsRows(): void
+    public function testPermanentClearMarksManuallyRemovedButKeepsRows(): void
     {
         $this->installSegmentCrudPlugin(true);
 
-        $alias         = 'lf-seg-soft-'.bin2hex(random_bytes(8));
+        $alias         = 'lf-seg-permanent-'.bin2hex(random_bytes(8));
         [$segment]     = $this->createSegmentWithManualMembers($alias, 4);
         $resolvedAlias = (string) $segment->getAlias();
         $segmentId     = (int) $segment->getId();
@@ -110,8 +110,8 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         Assert::assertSame(4, $this->countTotalMembershipRows($segmentId));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
-            '--alias'      => $resolvedAlias,
-            '--soft-clear' => true,
+            '--alias'           => $resolvedAlias,
+            '--permanent-clear' => true,
         ]);
 
         Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
@@ -119,7 +119,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         Assert::assertSame(4, $this->countTotalMembershipRows($segmentId));
     }
 
-    public function testCannotCombineClearAndSoftClear(): void
+    public function testCannotCombineClearAndPermanentClear(): void
     {
         $this->installSegmentCrudPlugin(true);
 
@@ -128,9 +128,9 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         $resolvedAlias = (string) $segment->getAlias();
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
-            '--alias'      => $resolvedAlias,
-            '--clear'      => true,
-            '--soft-clear' => true,
+            '--alias'           => $resolvedAlias,
+            '--clear'           => true,
+            '--permanent-clear' => true,
         ]);
 
         Assert::assertSame(Command::INVALID, $tester->getStatusCode());
@@ -194,20 +194,20 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         Assert::assertStringContainsString('batch', $tester->getDisplay());
     }
 
-    public function testSmallBatchSizeSoftClearProcessesInChunks(): void
+    public function testSmallBatchSizePermanentClearProcessesInChunks(): void
     {
         $this->installSegmentCrudPlugin(true);
 
-        $alias         = 'lf-seg-soft-batch-'.bin2hex(random_bytes(8));
+        $alias         = 'lf-seg-permanent-batch-'.bin2hex(random_bytes(8));
         [$segment]     = $this->createSegmentWithManualMembers($alias, 5);
         $resolvedAlias = (string) $segment->getAlias();
 
         Assert::assertSame(5, $this->countActiveMembershipRows((int) $segment->getId()));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
-            '--alias'      => $resolvedAlias,
-            '--soft-clear' => true,
-            '--batch-size' => '2',
+            '--alias'           => $resolvedAlias,
+            '--permanent-clear' => true,
+            '--batch-size'      => '2',
         ]);
 
         Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
