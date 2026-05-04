@@ -1,6 +1,6 @@
 # Leuchtfeuer Segment CRUD
 
-Console tooling to create or update lead segments by **alias** or **id**, and optionally mark **all segment memberships as manually removed** (`lead_lists_leads.manually_removed = 1`) in batches — **without deleting** membership rows (useful for preparing segments before external sync / Databridge-style workflows).
+Console tooling to create or update lead segments by **alias** or **id**, and optionally **clear segment membership** in two ways: **`--clear`** deletes rows from `lead_lists_leads` (hard), or **`--soft-clear`** sets `manually_removed = 1` on active rows while keeping the records (useful for Databridge-style / prep workflows where you need one or the other).
 
 ## Overview
 
@@ -53,13 +53,16 @@ From the **Mautic project root** (where `bin/console` lives):
 php bin/console leuchtfeuer:segment:prepare --help
 ```
 
-That lists all options (`--alias`, `--id`, `--name`, `--desc`, `--noupdate`, `--nocreate`, `--clear`, `--batch-size`, etc.).
+That lists all options (`--alias`, `--id`, `--name`, `--desc`, `--noupdate`, `--nocreate`, `--clear`, `--soft-clear`, `--batch-size`, etc.).
 
 Typical examples (after the plugin is published):
 
 ```bash
-# Mark all memberships as manually removed (same DB semantics as removing contacts in the segment UI for filter-based members; rows stay in lead_lists_leads)
+# Hard clear: remove all membership rows for this segment (batched DELETE on lead_lists_leads)
 php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --clear
+
+# Soft clear: set manually_removed = 1 on every active membership; rows remain (batched UPDATE)
+php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --soft-clear
 
 # Same by numeric segment id (segment must already exist)
 php bin/console leuchtfeuer:segment:prepare --id=123 --clear
@@ -68,9 +71,12 @@ php bin/console leuchtfeuer:segment:prepare --id=123 --clear
 php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --name="New name"
 ```
 
-Use `--help` for the authoritative option list and defaults (e.g. `--batch-size` when using `--clear`).
+Use `--help` for the authoritative option list and defaults (e.g. `--batch-size` applies to both `--clear` and `--soft-clear`).
 
-`--clear` runs batched `UPDATE` statements; it does **not** issue `DELETE` on `lead_lists_leads`. Active membership in Mautic is `manually_removed = 0`; after `--clear`, no active members remain for that segment until contacts are re-added or filters rebuild membership.
+Do **not** pass **`--clear` and `--soft-clear` together** — the command exits with an error.
+
+- **`--clear`:** batched `DELETE` — no rows left for that segment in `lead_lists_leads`.
+- **`--soft-clear`:** batched `UPDATE … SET manually_removed = 1 WHERE manually_removed = 0` — active membership (what Mautic treats as “in segment”) becomes zero, but history rows stay in the table.
 
 ### Mautic events
 

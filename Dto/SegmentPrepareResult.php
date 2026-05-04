@@ -8,12 +8,16 @@ use Mautic\LeadBundle\Entity\LeadList;
 
 final class SegmentPrepareResult
 {
+    /**
+     * @param 'none'|'hard'|'soft' $clearMode
+     */
     public function __construct(
         public readonly LeadList $segment,
         public readonly bool $created,
         public readonly bool $metadataUpdated,
-        /** Number of lead_lists_leads rows updated to manually_removed = 1 when --clear was used */
+        /** Rows affected by --clear (DELETE) or --soft-clear (UPDATE); 0 if neither flag was used */
         public readonly int $clearedMembers,
+        public readonly string $clearMode = 'none',
     ) {
     }
 }

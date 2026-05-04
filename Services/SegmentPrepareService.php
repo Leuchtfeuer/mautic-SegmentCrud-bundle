@@ -64,11 +64,21 @@ final class SegmentPrepareService
             $metadataUpdated = $this->applyMetadataUpdate($segment, $options);
         }
 
-        if ($options->clear) {
-            $clearedMembers = $this->clearAllMembers($segment, $output);
+        $clearMode = 'none';
+
+        if ($options->clear && $options->softClear) {
+            throw new \InvalidArgumentException('Use either --clear or --soft-clear, not both.');
         }
 
-        return new SegmentPrepareResult($segment, $created, $metadataUpdated, $clearedMembers);
+        if ($options->clear) {
+            $clearedMembers = $this->clearAllMembersHard($segment, $output);
+            $clearMode      = 'hard';
+        } elseif ($options->softClear) {
+            $clearedMembers = $this->clearAllMembersSoft($segment, $output);
+            $clearMode      = 'soft';
+        }
+
+        return new SegmentPrepareResult($segment, $created, $metadataUpdated, $clearedMembers, $clearMode);
     }
 
     public function setBatchSize(int $batchSize): void
@@ -134,12 +144,55 @@ final class SegmentPrepareService
     }
 
     /**
-     * Marks every active segment membership as manually removed (same DB flag as the segment UI),
-     * in batches. Does not delete rows in lead_lists_leads; sets manually_removed = 1.
+     * Deletes segment membership rows in batches (hard remove from lead_lists_leads).
      *
      * @throws \Doctrine\DBAL\Exception
      */
-    private function clearAllMembers(LeadList $segment, OutputInterface $output): int
+    private function clearAllMembersHard(LeadList $segment, OutputInterface $output): int
+    {
+        $segmentId = (int) $segment->getId();
+        if ($segmentId < 1) {
+            return 0;
+        }
+
+        $connection = $this->em->getConnection();
+        $table      = MAUTIC_TABLE_PREFIX.'lead_lists_leads';
+        $total      = 0;
+
+        $output->writeln(sprintf('<comment>Deleting memberships for segment %d in batches of %d…</comment>', $segmentId, $this->batchSize));
+
+        do {
+            $sql = 'DELETE FROM '.$table.' WHERE leadlist_id = ? LIMIT '.$this->batchSize;
+
+            $affected = (int) $connection->executeStatement(
+                $sql,
+                [$segmentId],
+                [ParameterType::INTEGER]
+            );
+
+            $total += $affected;
+
+            if ($affected > 0) {
+                $output->writeln(sprintf('  … deleted %d row(s) (total %d)', $affected, $total));
+            }
+
+            usleep(50000);
+        } while ($affected > 0);
+
+        $this->segmentCountCacheHelper->invalidateSegmentContactCount($segmentId);
+        gc_collect_cycles();
+
+        $output->writeln(sprintf('<info>Deleted %d segment membership row(s); cache invalidated.</info>', $total));
+
+        return $total;
+    }
+
+    /**
+     * Sets manually_removed = 1 on every active membership (soft clear). Rows remain in lead_lists_leads.
+     *
+     * @throws \Doctrine\DBAL\Exception
+     */
+    private function clearAllMembersSoft(LeadList $segment, OutputInterface $output): int
     {
         $segmentId = (int) $segment->getId();
         if ($segmentId < 1) {
@@ -167,7 +220,6 @@ final class SegmentPrepareService
                 $output->writeln(sprintf('  … marked %d row(s) (total %d)', $affected, $total));
             }
 
-            // Short break for DB. 50ms.
             usleep(50000);
         } while ($affected > 0);
 

@@ -27,20 +27,32 @@ class SegmentPrepareCommand extends Command
     protected function configure(): void
     {
         $this->setName('leuchtfeuer:segment:prepare')
-            ->setDescription('Create or update a segment by alias or id; optionally mark all memberships manually removed (for Databridge prep).')
+            ->setDescription('Create or update a segment by alias or id; optionally clear memberships (--clear deletes rows, --soft-clear sets manually_removed)')
             ->addOption('alias', null, InputOption::VALUE_OPTIONAL, 'Segment alias; creates segment if missing (unless --nocreate)')
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Segment id; must already exist')
             ->addOption('name', null, InputOption::VALUE_OPTIONAL, 'Name for create / update (default name on create: alias)')
             ->addOption('desc', null, InputOption::VALUE_OPTIONAL, 'Description for create / update (default on create: empty; on update: leave unchanged if omitted)')
             ->addOption('noupdate', null, InputOption::VALUE_NONE, 'If segment exists, do not change name or description')
             ->addOption('nocreate', null, InputOption::VALUE_NONE, 'With --alias: fail if the segment does not exist')
-            ->addOption('clear', null, InputOption::VALUE_NONE, 'Set manually_removed on all segment memberships (batched; does not delete lead_lists_leads rows)')
-            ->addOption('batch-size', null, InputOption::VALUE_OPTIONAL, 'Rows per delete batch when using --clear', '1000');
+            ->addOption('clear', null, InputOption::VALUE_NONE, 'Hard clear: DELETE all lead_lists_leads rows for this segment (batched). Mutually exclusive with --soft-clear')
+            ->addOption('soft-clear', null, InputOption::VALUE_NONE, 'Soft clear: SET manually_removed = 1 on active memberships; keeps rows (batched). Mutually exclusive with --clear')
+            ->addOption('batch-size', null, InputOption::VALUE_OPTIONAL, 'Rows per batch when using --clear or --soft-clear', '1000');
+
+        $this->addUsage('--alias=<alias> [--clear|--soft-clear]');
+        $this->addUsage('--id=<id> [--clear|--soft-clear]');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        $wantsClear     = (bool) $input->getOption('clear');
+        $wantsSoftClear = (bool) $input->getOption('soft-clear');
+        if ($wantsClear && $wantsSoftClear) {
+            $io->error('Use either --clear or --soft-clear, not both.');
+
+            return Command::INVALID;
+        }
 
         if (!$this->isSegmentCrudIntegrationPublished()) {
             $io->error('Leuchtfeuer Segment CRUD is disabled. Enable the integration under Plugins (integration must be published).');
@@ -75,7 +87,8 @@ class SegmentPrepareCommand extends Command
                 $description,
                 (bool) $input->getOption('noupdate'),
                 (bool) $input->getOption('nocreate'),
-                (bool) $input->getOption('clear'),
+                $wantsClear,
+                $wantsSoftClear,
             );
 
             $result = $this->segmentPrepareService->prepare($options, $output);
@@ -91,6 +104,15 @@ class SegmentPrepareCommand extends Command
 
         $segment = $result->segment;
 
+        $clearSummary = '';
+        if ($result->clearedMembers > 0) {
+            $clearSummary = match ($result->clearMode) {
+                'hard'  => sprintf(', %d membership row(s) deleted', $result->clearedMembers),
+                'soft'  => sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers),
+                default => '',
+            };
+        }
+
         $io->success(
             sprintf(
                 'Segment %d (%s) — %s%s%s.',
@@ -98,7 +120,7 @@ class SegmentPrepareCommand extends Command
                 $segment->getAlias(),
                 $result->created ? 'created' : 'loaded',
                 $result->metadataUpdated ? ', metadata updated' : '',
-                $result->clearedMembers > 0 ? sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers) : ''
+                $clearSummary
             )
         );
 
