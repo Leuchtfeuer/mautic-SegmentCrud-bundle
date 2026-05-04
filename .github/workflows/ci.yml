@@ -1,0 +1,94 @@
+name: Plugin CI
+
+on:
+  # push omitted: with branches "**" every PR sync ran twice (pull_request + push).
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  php-cs-fixer:
+    name: PHP CS Fixer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+
+      - name: Cache PHP CS Fixer cache
+        uses: actions/cache@v5
+        with:
+          path: .php-cs-fixer.cache
+          key: ${{ runner.os }}-php-cs-fixer-${{ hashFiles('composer.lock', '.php-cs-fixer.php') }}
+          restore-keys: |
+            ${{ runner.os }}-php-cs-fixer-
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v4
+
+      - name: Run PHP CS Fixer
+        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --diff --using-cache=yes --verbose
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+
+      - name: Cache PHPStan cache
+        uses: actions/cache@v5
+        with:
+          path: .phpstan-cache
+          key: ${{ runner.os }}-phpstan-${{ hashFiles('composer.lock', 'phpstan.neon.dist') }}
+          restore-keys: |
+            ${{ runner.os }}-phpstan-
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v4
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --configuration=phpstan.neon.dist --no-progress --memory-limit=1G
+
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+
+      - name: Cache PHPUnit cache
+        uses: actions/cache@v5
+        with:
+          path: .phpunit.cache
+          key: ${{ runner.os }}-phpunit-${{ hashFiles('composer.lock', 'phpunit.xml.dist') }}
+          restore-keys: |
+            ${{ runner.os }}-phpunit-
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v4
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --configuration=phpunit.xml.dist
