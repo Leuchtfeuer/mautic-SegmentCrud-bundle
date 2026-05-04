@@ -27,19 +27,19 @@ class SegmentPrepareCommand extends Command
     protected function configure(): void
     {
         $this->setName('leuchtfeuer:segment:prepare')
-            ->setDescription('Create or update a segment by alias or id; optionally clear memberships (--clear deletes rows, --soft-clear sets manually_removed)')
+            ->setDescription('Create or update a segment by alias or id; optionally clear memberships (--clear deletes rows, --permanent-clear sets manually_removed)')
             ->addOption('alias', null, InputOption::VALUE_OPTIONAL, 'Segment alias; creates segment if missing (unless --nocreate)')
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Segment id; must already exist')
             ->addOption('name', null, InputOption::VALUE_OPTIONAL, 'Name for create / update (default name on create: alias)')
             ->addOption('desc', null, InputOption::VALUE_OPTIONAL, 'Description for create / update (default on create: empty; on update: leave unchanged if omitted)')
             ->addOption('noupdate', null, InputOption::VALUE_NONE, 'If segment exists, do not change name or description')
             ->addOption('nocreate', null, InputOption::VALUE_NONE, 'With --alias: fail if the segment does not exist')
-            ->addOption('clear', null, InputOption::VALUE_NONE, 'Hard clear: DELETE all lead_lists_leads rows for this segment (batched). Mutually exclusive with --soft-clear')
-            ->addOption('soft-clear', null, InputOption::VALUE_NONE, 'Soft clear: SET manually_removed = 1 on active memberships; keeps rows (batched). Mutually exclusive with --clear')
-            ->addOption('batch-size', null, InputOption::VALUE_OPTIONAL, 'Rows per batch when using --clear or --soft-clear', '1000');
+            ->addOption('clear', null, InputOption::VALUE_NONE, 'Hard clear: DELETE all lead_lists_leads rows for this segment (batched). Mutually exclusive with --permanent-clear')
+            ->addOption('permanent-clear', null, InputOption::VALUE_NONE, 'Soft clear: SET manually_removed = 1 on active memberships; keeps rows (batched). Mutually exclusive with --clear')
+            ->addOption('batch-size', null, InputOption::VALUE_OPTIONAL, 'Rows per batch when using --clear or --permanent-clear', '1000');
 
-        $this->addUsage('--alias=<alias> [--clear|--soft-clear]');
-        $this->addUsage('--id=<id> [--clear|--soft-clear]');
+        $this->addUsage('--alias=<alias> [--clear|--permanent-clear]');
+        $this->addUsage('--id=<id> [--clear|--permanent-clear]');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -47,9 +47,9 @@ class SegmentPrepareCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $wantsClear     = (bool) $input->getOption('clear');
-        $wantsSoftClear = (bool) $input->getOption('soft-clear');
+        $wantsSoftClear = (bool) $input->getOption('permanent-clear');
         if ($wantsClear && $wantsSoftClear) {
-            $io->error('Use either --clear or --soft-clear, not both.');
+            $io->error('Use either --clear or --permanent-clear, not both.');
 
             return Command::INVALID;
         }

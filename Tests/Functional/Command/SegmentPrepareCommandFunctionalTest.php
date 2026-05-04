@@ -111,7 +111,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
             '--alias'      => $resolvedAlias,
-            '--soft-clear' => true,
+            '--permanent-clear' => true,
         ]);
 
         Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
@@ -130,7 +130,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
             '--alias'      => $resolvedAlias,
             '--clear'      => true,
-            '--soft-clear' => true,
+            '--permanent-clear' => true,
         ]);
 
         Assert::assertSame(Command::INVALID, $tester->getStatusCode());
@@ -206,7 +206,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
             '--alias'      => $resolvedAlias,
-            '--soft-clear' => true,
+            '--permanent-clear' => true,
             '--batch-size' => '2',
         ]);
 

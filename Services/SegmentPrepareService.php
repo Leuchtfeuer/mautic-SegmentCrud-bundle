@@ -67,7 +67,7 @@ final class SegmentPrepareService
         $clearMode = 'none';
 
         if ($options->clear && $options->softClear) {
-            throw new \InvalidArgumentException('Use either --clear or --soft-clear, not both.');
+            throw new \InvalidArgumentException('Use either --clear or --permanent-clear, not both.');
         }
 
         if ($options->clear) {
