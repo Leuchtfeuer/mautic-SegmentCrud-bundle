@@ -9,7 +9,7 @@ use Mautic\LeadBundle\Entity\LeadList;
 final class SegmentPrepareResult
 {
     /**
-     * @param 'none'|'hard'|'soft' $clearMode
+     * @param 'none'|'hard'|'permanent' $clearMode
      */
     public function __construct(
         public readonly LeadList $segment,

@@ -61,7 +61,7 @@ Typical examples (after the plugin is published):
 # Hard clear: remove all membership rows for this segment (batched DELETE on lead_lists_leads)
 php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --clear
 
-# Soft clear: set manually_removed = 1 on every active membership; rows remain (batched UPDATE)
+# Permanent clear: set manually_removed = 1 on every active membership; rows remain (batched UPDATE)
 php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --permanent-clear
 
 # Same by numeric segment id (segment must already exist)

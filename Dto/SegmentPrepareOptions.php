@@ -18,8 +18,8 @@ final class SegmentPrepareOptions
         public readonly bool $noCreate,
         /** Hard clear: DELETE membership rows from lead_lists_leads */
         public readonly bool $clear,
-        /** Soft clear: SET manually_removed = 1; keeps rows (mutually exclusive with {@see $clear}) */
-        public readonly bool $softClear,
+        /** Permanent clear: SET manually_removed = 1; keeps rows (mutually exclusive with {@see $clear}) */
+        public readonly bool $permanentClear,
     ) {
     }
 }

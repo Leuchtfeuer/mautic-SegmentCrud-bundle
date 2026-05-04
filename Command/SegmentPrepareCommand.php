@@ -35,7 +35,7 @@ class SegmentPrepareCommand extends Command
             ->addOption('noupdate', null, InputOption::VALUE_NONE, 'If segment exists, do not change name or description')
             ->addOption('nocreate', null, InputOption::VALUE_NONE, 'With --alias: fail if the segment does not exist')
             ->addOption('clear', null, InputOption::VALUE_NONE, 'Hard clear: DELETE all lead_lists_leads rows for this segment (batched). Mutually exclusive with --permanent-clear')
-            ->addOption('permanent-clear', null, InputOption::VALUE_NONE, 'Soft clear: SET manually_removed = 1 on active memberships; keeps rows (batched). Mutually exclusive with --clear')
+            ->addOption('permanent-clear', null, InputOption::VALUE_NONE, 'Permanent clear: SET manually_removed = 1 on active memberships; keeps rows (batched). Mutually exclusive with --clear')
             ->addOption('batch-size', null, InputOption::VALUE_OPTIONAL, 'Rows per batch when using --clear or --permanent-clear', '1000');
 
         $this->addUsage('--alias=<alias> [--clear|--permanent-clear]');
@@ -47,8 +47,8 @@ class SegmentPrepareCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $wantsClear     = (bool) $input->getOption('clear');
-        $wantsSoftClear = (bool) $input->getOption('permanent-clear');
-        if ($wantsClear && $wantsSoftClear) {
+        $wantsPermanentClear = (bool) $input->getOption('permanent-clear');
+        if ($wantsClear && $wantsPermanentClear) {
             $io->error('Use either --clear or --permanent-clear, not both.');
 
             return Command::INVALID;
@@ -88,7 +88,7 @@ class SegmentPrepareCommand extends Command
                 (bool) $input->getOption('noupdate'),
                 (bool) $input->getOption('nocreate'),
                 $wantsClear,
-                $wantsSoftClear,
+                $wantsPermanentClear,
             );
 
             $result = $this->segmentPrepareService->prepare($options, $output);
@@ -108,7 +108,7 @@ class SegmentPrepareCommand extends Command
         if ($result->clearedMembers > 0) {
             $clearSummary = match ($result->clearMode) {
                 'hard'  => sprintf(', %d membership row(s) deleted', $result->clearedMembers),
-                'soft'  => sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers),
+                'permanent'  => sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers),
                 default => '',
             };
         }
