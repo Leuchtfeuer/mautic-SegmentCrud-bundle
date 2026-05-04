@@ -13,7 +13,9 @@ return function (ContainerConfigurator $configurator): void {
         ->public();
 
     $excludes = [
+        'Dto',
         'Integration',
+        'vendor',
     ];
 
     $services->load('MauticPlugin\\LeuchtfeuerSegmentCrudBundle\\', '../')

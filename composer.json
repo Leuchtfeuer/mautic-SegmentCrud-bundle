@@ -24,10 +24,10 @@
         "install-directory-name": "LeuchtfeuerSegmentCrudBundle"
     },
     "require": {
-        "php": "^8.1",
-        "mautic/core-lib": "^5.0"
+        "php": "^8.1"
     },
     "require-dev": {
+        "mautic/core-lib": "^5.0",
         "friendsofphp/php-cs-fixer": "^3.4",
         "phpunit/phpunit": "^9.5",
         "phpstan/phpstan": "^1.0",
@@ -62,7 +62,8 @@
     "scripts": {
         "fixcs": "./vendor/bin/php-cs-fixer fix --config .php-cs-fixer.php --show-progress dots -v",
         "phpstan": "./vendor/bin/phpstan",
-        "phpunit": "./vendor/bin/phpunit -c phpunit.xml",
+        "phpunit": "./vendor/bin/phpunit -c phpunit.xml.dist --testsuite unit",
+        "phpunit:all": "./vendor/bin/phpunit -c phpunit.xml.dist",
         "test": "@phpunit",
         "all": [
             "@fixcs",
