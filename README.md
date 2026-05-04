@@ -1,6 +1,6 @@
 # Leuchtfeuer Segment CRUD
 
-Console tooling to create or update lead segments by **alias** or **id**, and optionally **clear segment membership** in two ways: **`--clear`** deletes rows from `lead_lists_leads` (hard), or **`--permanent-clear`** sets `manually_removed = 1` on active rows while keeping the records (useful for Databridge-style / prep workflows where you need one or the other).
+Console tooling to create or update lead segments by **alias** or **id**, and optionally **clear segment membership** in two ways: **`--clear`** deletes rows from `lead_lists_leads` (soft), or **`--permanent-clear`** sets `manually_removed = 1` on active rows while keeping the records (useful for Databridge-style / prep workflows where you need one or the other).
 
 ## Overview
 
@@ -58,7 +58,7 @@ That lists all options (`--alias`, `--id`, `--name`, `--desc`, `--noupdate`, `--
 Typical examples (after the plugin is published):
 
 ```bash
-# Hard clear: remove all membership rows for this segment (batched DELETE on lead_lists_leads)
+# Soft clear: remove all membership rows for this segment (batched DELETE on lead_lists_leads)
 php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --clear
 
 # Permanent clear: set manually_removed = 1 on every active membership; rows remain (batched UPDATE)

@@ -71,8 +71,8 @@ final class SegmentPrepareService
         }
 
         if ($options->clear) {
-            $clearedMembers = $this->clearAllMembersHard($segment, $output);
-            $clearMode      = 'hard';
+            $clearedMembers = $this->clearAllMembersSoft($segment, $output);
+            $clearMode      = 'soft';
         } elseif ($options->permanentClear) {
             $clearedMembers = $this->clearAllMembersPermanent($segment, $output);
             $clearMode      = 'permanent';
@@ -144,11 +144,11 @@ final class SegmentPrepareService
     }
 
     /**
-     * Deletes segment membership rows in batches (hard remove from lead_lists_leads).
+     * Deletes segment membership rows in batches (soft remove from lead_lists_leads).
      *
      * @throws \Doctrine\DBAL\Exception
      */
-    private function clearAllMembersHard(LeadList $segment, OutputInterface $output): int
+    private function clearAllMembersSoft(LeadList $segment, OutputInterface $output): int
     {
         $segmentId = (int) $segment->getId();
         if ($segmentId < 1) {

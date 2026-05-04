@@ -34,7 +34,7 @@ class SegmentPrepareCommand extends Command
             ->addOption('desc', null, InputOption::VALUE_OPTIONAL, 'Description for create / update (default on create: empty; on update: leave unchanged if omitted)')
             ->addOption('noupdate', null, InputOption::VALUE_NONE, 'If segment exists, do not change name or description')
             ->addOption('nocreate', null, InputOption::VALUE_NONE, 'With --alias: fail if the segment does not exist')
-            ->addOption('clear', null, InputOption::VALUE_NONE, 'Hard clear: DELETE all lead_lists_leads rows for this segment (batched). Mutually exclusive with --permanent-clear')
+            ->addOption('clear', null, InputOption::VALUE_NONE, 'Soft clear: DELETE all lead_lists_leads rows for this segment (batched). Mutually exclusive with --permanent-clear')
             ->addOption('permanent-clear', null, InputOption::VALUE_NONE, 'Permanent clear: SET manually_removed = 1 on active memberships; keeps rows (batched). Mutually exclusive with --clear')
             ->addOption('batch-size', null, InputOption::VALUE_OPTIONAL, 'Rows per batch when using --clear or --permanent-clear', '1000');
 
@@ -107,7 +107,7 @@ class SegmentPrepareCommand extends Command
         $clearSummary = '';
         if ($result->clearedMembers > 0) {
             $clearSummary = match ($result->clearMode) {
-                'hard'       => sprintf(', %d membership row(s) deleted', $result->clearedMembers),
+                'soft'       => sprintf(', %d membership row(s) deleted', $result->clearedMembers),
                 'permanent'  => sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers),
                 default      => '',
             };
