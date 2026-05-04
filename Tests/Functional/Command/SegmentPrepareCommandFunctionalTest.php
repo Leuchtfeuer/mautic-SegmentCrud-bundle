@@ -212,9 +212,12 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         return [$segment, $leads];
     }
 
+    /**
+     * Counts active segment members (`manually_removed = 0`), same as Mautic core segment membership.
+     */
     private function countSegmentMembershipRows(int $segmentId): int
     {
-        $sql = 'SELECT COUNT(*) FROM '.MAUTIC_TABLE_PREFIX.'lead_lists_leads WHERE leadlist_id = ?';
+        $sql = 'SELECT COUNT(*) FROM '.MAUTIC_TABLE_PREFIX.'lead_lists_leads WHERE leadlist_id = ? AND manually_removed = 0';
 
         $count = $this->em->getConnection()->fetchOne($sql, [$segmentId]);
         if (!is_numeric($count)) {

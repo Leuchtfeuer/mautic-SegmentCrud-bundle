@@ -27,14 +27,14 @@ class SegmentPrepareCommand extends Command
     protected function configure(): void
     {
         $this->setName('leuchtfeuer:segment:prepare')
-            ->setDescription('Create or update a segment by alias or id, optionally remove all members (for Databridge prep).')
+            ->setDescription('Create or update a segment by alias or id; optionally mark all memberships manually removed (for Databridge prep).')
             ->addOption('alias', null, InputOption::VALUE_OPTIONAL, 'Segment alias; creates segment if missing (unless --nocreate)')
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Segment id; must already exist')
             ->addOption('name', null, InputOption::VALUE_OPTIONAL, 'Name for create / update (default name on create: alias)')
             ->addOption('desc', null, InputOption::VALUE_OPTIONAL, 'Description for create / update (default on create: empty; on update: leave unchanged if omitted)')
             ->addOption('noupdate', null, InputOption::VALUE_NONE, 'If segment exists, do not change name or description')
             ->addOption('nocreate', null, InputOption::VALUE_NONE, 'With --alias: fail if the segment does not exist')
-            ->addOption('clear', null, InputOption::VALUE_NONE, 'Remove all contacts from the segment (batched; safe for large segments)')
+            ->addOption('clear', null, InputOption::VALUE_NONE, 'Set manually_removed on all segment memberships (batched; does not delete lead_lists_leads rows)')
             ->addOption('batch-size', null, InputOption::VALUE_OPTIONAL, 'Rows per delete batch when using --clear', '1000');
     }
 
@@ -98,7 +98,7 @@ class SegmentPrepareCommand extends Command
                 $segment->getAlias(),
                 $result->created ? 'created' : 'loaded',
                 $result->metadataUpdated ? ', metadata updated' : '',
-                $result->clearedMembers > 0 ? sprintf(', %d membership row(s) removed', $result->clearedMembers) : ''
+                $result->clearedMembers > 0 ? sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers) : ''
             )
         );
 

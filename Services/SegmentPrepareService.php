@@ -134,7 +134,8 @@ final class SegmentPrepareService
     }
 
     /**
-     * Remove all segment membership rows in batches (constant memory, tolerates large segments).
+     * Marks every active segment membership as manually removed (same DB flag as the segment UI),
+     * in batches. Does not delete rows in lead_lists_leads; sets manually_removed = 1.
      *
      * @throws \Doctrine\DBAL\Exception
      */
@@ -149,10 +150,10 @@ final class SegmentPrepareService
         $table      = MAUTIC_TABLE_PREFIX.'lead_lists_leads';
         $total      = 0;
 
-        $output->writeln(sprintf('<comment>Clearing members for segment %d in batches of %d…</comment>', $segmentId, $this->batchSize));
+        $output->writeln(sprintf('<comment>Marking segment %d memberships as manually removed, batches of %d…</comment>', $segmentId, $this->batchSize));
 
         do {
-            $sql = 'DELETE FROM '.$table.' WHERE leadlist_id = ? LIMIT '.$this->batchSize;
+            $sql = 'UPDATE '.$table.' SET manually_removed = 1 WHERE leadlist_id = ? AND manually_removed = 0 LIMIT '.$this->batchSize;
 
             $affected = (int) $connection->executeStatement(
                 $sql,
@@ -163,7 +164,7 @@ final class SegmentPrepareService
             $total += $affected;
 
             if ($affected > 0) {
-                $output->writeln(sprintf('  … removed %d rows (total %d)', $affected, $total));
+                $output->writeln(sprintf('  … marked %d row(s) (total %d)', $affected, $total));
             }
 
             // Short break for DB. 50ms.
@@ -173,7 +174,7 @@ final class SegmentPrepareService
         $this->segmentCountCacheHelper->invalidateSegmentContactCount($segmentId);
         gc_collect_cycles();
 
-        $output->writeln(sprintf('<info>Removed %d segment membership row(s); cache invalidated.</info>', $total));
+        $output->writeln(sprintf('<info>Marked %d segment membership row(s) as manually removed; cache invalidated.</info>', $total));
 
         return $total;
     }

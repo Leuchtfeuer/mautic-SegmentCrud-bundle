@@ -1,6 +1,6 @@
 # Leuchtfeuer Segment CRUD
 
-Console tooling to create or update lead segments by **alias** or **id**, and optionally **clear all segment members** in batches (useful for preparing segments before external sync / Databridge-style workflows).
+Console tooling to create or update lead segments by **alias** or **id**, and optionally mark **all segment memberships as manually removed** (`lead_lists_leads.manually_removed = 1`) in batches — **without deleting** membership rows (useful for preparing segments before external sync / Databridge-style workflows).
 
 ## Overview
 
@@ -58,7 +58,7 @@ That lists all options (`--alias`, `--id`, `--name`, `--desc`, `--noupdate`, `--
 Typical examples (after the plugin is published):
 
 ```bash
-# Clear all contacts from a segment identified by alias (creates the segment if it does not exist, unless you use --nocreate)
+# Mark all memberships as manually removed (same DB semantics as removing contacts in the segment UI for filter-based members; rows stay in lead_lists_leads)
 php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --clear
 
 # Same by numeric segment id (segment must already exist)
@@ -69,6 +69,8 @@ php bin/console leuchtfeuer:segment:prepare --alias=my-segment-alias --name="New
 ```
 
 Use `--help` for the authoritative option list and defaults (e.g. `--batch-size` when using `--clear`).
+
+`--clear` runs batched `UPDATE` statements; it does **not** issue `DELETE` on `lead_lists_leads`. Active membership in Mautic is `manually_removed = 0`; after `--clear`, no active members remain for that segment until contacts are re-added or filters rebuild membership.
 
 ### Mautic events
 
