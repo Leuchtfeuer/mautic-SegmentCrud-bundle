@@ -115,15 +115,9 @@ Functional tests extend `Mautic\CoreBundle\Test\MauticMysqlTestCase`. They need:
 
 They are **not** executed in the plugin’s default CI pipeline; run them **manually** when you have a dev/staging Mautic tree (e.g. local or DDEV).
 
-Example from the **Mautic project root** (adjust paths if your tree uses `app/` as CWD for PHPUnit):
+#### DDEV (recommended)
 
-```bash
-env APP_ENV=test APP_DEBUG=0 KERNEL_CLASS=AppTestKernel \
-  bin/phpunit -d memory_limit=2G \
-  plugins/LeuchtfeuerSegmentCrudBundle/Tests/Functional
-```
-
-If you use **DDEV**, from the host:
+PHP must run **inside the web container** so `DB_HOST=db` resolves and the DB port is correct:
 
 ```bash
 ddev exec env APP_ENV=test APP_DEBUG=0 KERNEL_CLASS=AppTestKernel \
@@ -131,7 +125,13 @@ ddev exec env APP_ENV=test APP_DEBUG=0 KERNEL_CLASS=AppTestKernel \
   plugins/LeuchtfeuerSegmentCrudBundle/Tests/Functional
 ```
 
-Some environments require database credentials and tools (`mysqldump` / `mysql` client) to match what Mautic’s functional test base expects; see your Mautic and DDEV documentation if setup fails.
+If you use **DDEV**, from the host:
+
+```bash
+export DB_SERVER_VERSION=10.3.0-MariaDB   # match your MariaDB; use e.g. 5.7 for MySQL 5.7
+```
+
+Functional tests also expect DB client tools (`mysqldump` / `mysql`) behaviour compatible with `MauticMysqlTestCase`; running inside DDEV avoids many host-only mismatches.
 
 ## Troubleshooting
 
