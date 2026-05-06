@@ -16,16 +16,12 @@ final class SegmentCrudIntegrationTest extends TestCase
     {
         parent::setUp();
 
-        $this->integration = new class extends SegmentCrudIntegration {
-            public function __construct()
-            {
-            }
-        };
+        $this->integration = new SegmentCrudIntegration();
     }
 
     public function testGetNameReturnsPluginKey(): void
     {
-        Assert::assertSame(SegmentCrudIntegration::PLUGIN_NAME, $this->integration->getName());
+        Assert::assertSame(SegmentCrudIntegration::NAME, $this->integration->getName());
     }
 
     public function testGetDisplayNameIsNonEmpty(): void
@@ -33,8 +29,8 @@ final class SegmentCrudIntegrationTest extends TestCase
         Assert::assertNotSame('', $this->integration->getDisplayName());
     }
 
-    public function testGetAuthenticationTypeIsNonEmpty(): void
+    public function testGetIconIsNonEmpty(): void
     {
-        Assert::assertNotSame('', $this->integration->getAuthenticationType());
+        Assert::assertNotSame('', $this->integration->getIcon());
     }
 }

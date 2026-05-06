@@ -29,14 +29,6 @@ final class SegmentPrepareService
      */
     public function prepare(SegmentPrepareOptions $options, OutputInterface $output): SegmentPrepareResult
     {
-        if (null !== $options->alias && null !== $options->id) {
-            throw new \InvalidArgumentException('Specify either --alias or --id, not both.');
-        }
-
-        if (null === $options->alias && null === $options->id) {
-            throw new \InvalidArgumentException('Provide --alias or --id.');
-        }
-
         $created           = false;
         $metadataUpdated   = false;
         $clearedMembers    = 0;
@@ -65,10 +57,6 @@ final class SegmentPrepareService
         }
 
         $clearMode = 'none';
-
-        if ($options->clear && $options->permanentClear) {
-            throw new \InvalidArgumentException('Use either --clear or --permanent-clear, not both.');
-        }
 
         if ($options->clear) {
             $clearedMembers = $this->clearAllMembersSoft($segment, $output);

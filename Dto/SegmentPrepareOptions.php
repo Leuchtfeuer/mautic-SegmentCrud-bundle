@@ -21,5 +21,16 @@ final class SegmentPrepareOptions
         /** Permanent clear: SET manually_removed = 1; keeps rows (mutually exclusive with {@see $clear}) */
         public readonly bool $permanentClear,
     ) {
+        if (null !== $this->alias && null !== $this->id) {
+            throw new \InvalidArgumentException('Specify either --alias or --id, not both.');
+        }
+
+        if (null === $this->alias && null === $this->id) {
+            throw new \InvalidArgumentException('Provide --alias or --id.');
+        }
+
+        if ($this->clear && $this->permanentClear) {
+            throw new \InvalidArgumentException('Use either --clear or --permanent-clear, not both.');
+        }
     }
 }

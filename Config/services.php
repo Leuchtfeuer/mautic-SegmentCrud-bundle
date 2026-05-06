@@ -14,7 +14,6 @@ return function (ContainerConfigurator $configurator): void {
 
     $excludes = [
         'Dto',
-        'Integration',
         'vendor',
     ];
 
