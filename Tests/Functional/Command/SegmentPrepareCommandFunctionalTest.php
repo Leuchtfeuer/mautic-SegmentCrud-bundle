@@ -7,7 +7,6 @@ namespace MauticPlugin\LeuchtfeuerSegmentCrudBundle\Tests\Functional\Command;
 use Mautic\CoreBundle\Test\MauticMysqlTestCase;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadList;
-use Mautic\LeadBundle\Entity\LeadRepository;
 use Mautic\LeadBundle\Model\ListModel;
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Entity\Plugin;
@@ -260,14 +259,15 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         $segment->setIsPublished(true);
         $listModel->saveEntity($segment);
 
-        $leads = [];
+        $batchUid = bin2hex(random_bytes(8));
+        $leads    = [];
         for ($i = 0; $i < $leadCount; ++$i) {
-            $leads[] = new Lead();
+            $lead = new Lead();
+            $lead->setEmail(sprintf('lf-seg-functional-%s-%d@test.invalid', $batchUid, $i));
+            $this->em->persist($lead);
+            $leads[] = $lead;
         }
-
-        $leadRepo = $this->em->getRepository(Lead::class);
-        \assert($leadRepo instanceof LeadRepository);
-        $leadRepo->saveEntities($leads);
+        $this->em->flush();
 
         foreach ($leads as $lead) {
             $listModel->addLead($lead, $segment, true);
