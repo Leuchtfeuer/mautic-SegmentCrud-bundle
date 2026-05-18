@@ -13,10 +13,3 @@ parameters:
         - vendor
     scanFiles:
         - vendor/mautic/core-lib/config/config_test.php
-    ignoreErrors:
-        -
-            message: '#extends deprecated class Mautic\\PluginBundle\\Integration\\AbstractIntegration#'
-            path: Integration/SegmentCrudIntegration.php
-        -
-            message: '#does not call parent constructor from#'
-            path: Tests/Unit/Integration/SegmentCrudIntegrationTest.php

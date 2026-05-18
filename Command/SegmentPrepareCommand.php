@@ -68,7 +68,7 @@ class SegmentPrepareCommand extends Command
             $name    = is_string($nameRaw) && '' !== $nameRaw ? $nameRaw : null;
 
             $descRaw     = $input->getOption('desc');
-            $description = null === $descRaw ? null : (string) $descRaw;
+            $description = is_string($descRaw) ? $descRaw : null;
 
             $batchSizeRaw = $input->getOption('batch-size');
             if (is_numeric($batchSizeRaw)) {
@@ -140,5 +140,4 @@ class SegmentPrepareCommand extends Command
 
         return $id;
     }
-
 }
