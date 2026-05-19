@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerSegmentCrudBundle\Command;
 
-use Mautic\PluginBundle\Helper\IntegrationHelper;
-use Mautic\PluginBundle\Integration\AbstractIntegration;
 use MauticPlugin\LeuchtfeuerSegmentCrudBundle\Dto\SegmentPrepareOptions;
-use MauticPlugin\LeuchtfeuerSegmentCrudBundle\Integration\SegmentCrudIntegration;
+use MauticPlugin\LeuchtfeuerSegmentCrudBundle\Services\SegmentCrudIntegrationStatus;
 use MauticPlugin\LeuchtfeuerSegmentCrudBundle\Services\SegmentPrepareService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +17,7 @@ class SegmentPrepareCommand extends Command
 {
     public function __construct(
         private readonly SegmentPrepareService $segmentPrepareService,
-        private readonly IntegrationHelper $integrationHelper,
+        private readonly SegmentCrudIntegrationStatus $integrationStatus,
     ) {
         parent::__construct();
     }
@@ -54,7 +52,7 @@ class SegmentPrepareCommand extends Command
             return Command::INVALID;
         }
 
-        if (!$this->isSegmentCrudIntegrationPublished()) {
+        if (!$this->integrationStatus->isPublished()) {
             $io->error('Leuchtfeuer Segment CRUD is disabled. Enable the integration under Plugins (integration must be published).');
 
             return Command::FAILURE;
@@ -70,10 +68,7 @@ class SegmentPrepareCommand extends Command
             $name    = is_string($nameRaw) && '' !== $nameRaw ? $nameRaw : null;
 
             $descRaw     = $input->getOption('desc');
-            $description = null;
-            if (null !== $descRaw) {
-                $description = is_string($descRaw) ? $descRaw : '';
-            }
+            $description = is_string($descRaw) ? $descRaw : null;
 
             $batchSizeRaw = $input->getOption('batch-size');
             if (is_numeric($batchSizeRaw)) {
@@ -144,16 +139,5 @@ class SegmentPrepareCommand extends Command
         }
 
         return $id;
-    }
-
-    private function isSegmentCrudIntegrationPublished(): bool
-    {
-        $integration = $this->integrationHelper->getIntegrationObject(SegmentCrudIntegration::PLUGIN_NAME);
-
-        if (false === $integration || !$integration instanceof AbstractIntegration) {
-            return false;
-        }
-
-        return (bool) $integration->getIntegrationSettings()->getIsPublished();
     }
 }

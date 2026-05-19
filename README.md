@@ -21,7 +21,7 @@ Console tooling to create or update lead segments by **alias** or **id**, and op
 
 Install the package and ensure it is deployed under `plugins/LeuchtfeuerSegmentCrudBundle` (see Composer `extra.install-directory-name`).
 
-### Manual install
+### Manual Installation
 
 1. Download / copy the plugin into the Mautic `plugins` directory.
 2. The folder name must be **`LeuchtfeuerSegmentCrudBundle`**.
@@ -34,7 +34,7 @@ Install the package and ensure it is deployed under `plugins/LeuchtfeuerSegmentC
    php bin/console mautic:plugins:reload
    ```
 
-## Plugin activation (required)
+## Configuration
 
 The console command checks that the integration is **published**. If it is disabled, the command exits with an error and asks you to enable it.
 
@@ -45,7 +45,7 @@ The console command checks that the integration is **published**. If it is disab
 
 Until this is done, `leuchtfeuer:segment:prepare` will refuse to run.
 
-## Console command and help
+## Usage
 
 From the **Mautic project root** (where `bin/console` lives):
 
@@ -84,9 +84,9 @@ This command is a **direct console path** and does **not** participate in Mautic
 
 ## Tests
 
-### Unit tests (plugin repository / CI)
+### Unit tests (plugin repository)
 
-In this plugin directory, after `composer install`, **CI and the default Composer script run only the unit suite**:
+In this plugin directory, after `composer install`:
 
 ```bash
 composer test
@@ -94,30 +94,15 @@ composer test
 composer phpunit
 ```
 
-That executes PHPUnit with `--testsuite unit` (`Tests/Unit`). Functional tests are **not** included.
+That runs PHPUnit with `--testsuite unit` (`Tests/Unit`).
 
-To run **all** PHPUnit suites defined in `phpunit.xml.dist` (unit + functional) from a standalone plugin checkout:
+### CI (GitHub Actions)
 
-```bash
-composer phpunit:all
-```
+Pull requests use the shared [mautic-ci-runner](https://github.com/Leuchtfeuer/mautic-ci-runner) workflow: PHP CS Fixer, PHPStan, Rector, Twig lint, unit tests, and functional tests (MySQL/MariaDB matrix) against supported Mautic 5.x and PHP versions.
 
-> [!NOTE]
-> Standalone functional tests still expect a full Mautic test bootstrap and database; in practice they are meant to be run from a full Mautic instance (next section).
+### Functional tests (local / full Mautic)
 
-### Functional tests (full Mautic instance only)
-
-Functional tests extend `Mautic\CoreBundle\Test\MauticMysqlTestCase`. They need:
-
-- A **complete Mautic codebase** (not only this plugin folder).
-- **MySQL** and the normal Mautic **test** environment (`APP_ENV=test`, `AppTestKernel`, etc.).
-- The plugin installed and loadable like in production.
-
-They are **not** executed in the plugin’s default CI pipeline; run them **manually** when you have a dev/staging Mautic tree (e.g. local or DDEV).
-
-#### DDEV (recommended)
-
-PHP must run **inside the web container** so `DB_HOST=db` resolves and the DB port is correct:
+Functional tests extend `Mautic\CoreBundle\Test\MauticMysqlTestCase` and need a complete Mautic tree with MySQL. In **DDEV**, from the project root:
 
 ```bash
 ddev exec env APP_ENV=test APP_DEBUG=0 KERNEL_CLASS=AppTestKernel \
@@ -139,9 +124,13 @@ Functional tests also expect DB client tools (`mysqldump` / `mysql`) behaviour c
 - After deploying files manually: `php bin/console cache:clear` and `php bin/console mautic:plugins:reload`.
 - **Alias vs CLI:** segment aliases are normalized when saved in Mautic; use the **stored** alias (as in the UI or database) when calling `--alias`.
 
-## Author and contact
+## Credits
+
+Developed by **Leuchtfeuer Digital Marketing GmbH**.
+
+## Author
 
 **Leuchtfeuer Digital Marketing GmbH**
 
 - Issues: GitHub  
-- Other: [mautic-plugins@Leuchtfeuer.com](mailto:mautic-plugins@Leuchtfeuer.com)
+- Contact: [mautic-plugins@Leuchtfeuer.com](mailto:mautic-plugins@Leuchtfeuer.com)

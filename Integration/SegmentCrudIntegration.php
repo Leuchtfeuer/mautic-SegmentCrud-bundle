@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerSegmentCrudBundle\Integration;
 
-use Mautic\PluginBundle\Integration\AbstractIntegration;
+use Mautic\IntegrationsBundle\Integration\BasicIntegration;
+use Mautic\IntegrationsBundle\Integration\Interfaces\BasicInterface;
 
-class SegmentCrudIntegration extends AbstractIntegration
+final class SegmentCrudIntegration extends BasicIntegration implements BasicInterface
 {
-    public const PLUGIN_NAME = 'SegmentCrud';
+    public const NAME = 'SegmentCrud';
 
     public function getName(): string
     {
-        return self::PLUGIN_NAME;
+        return self::NAME;
     }
 
     public function getDisplayName(): string
@@ -20,8 +21,8 @@ class SegmentCrudIntegration extends AbstractIntegration
         return 'Leuchtfeuer Segment CRUD';
     }
 
-    public function getAuthenticationType(): string
+    public function getIcon(): string
     {
-        return 'none';
+        return 'plugins/LeuchtfeuerSegmentCrudBundle/Assets/img/segmentcrud.png';
     }
 }
