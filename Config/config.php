@@ -2,7 +2,7 @@
 
 return [
     'name'        => 'Leuchtfeuer Segment CRUD',
-    'description' => 'Segment CRUD rozšíření (Leuchtfeuer).',
+    'description' => 'Leuchtfeuer Segment CRUD plugin for Mautic',
     'version'     => '0.1.0',
-    'author'      => 'Leuchtfeuer',
+    'author'      => 'Leuchtfeuer Digital Marketing GmbH',
 ];
