@@ -2,7 +2,7 @@
 
 return [
     'name'        => 'Leuchtfeuer Segment CRUD',
-    'description' => 'Leuchtfeuer Segment CRUD plugin for Mautic',
-    'version'     => '1.1.0',
+    'description' => 'Console command to create / modify / delete segments, or to clear their content',
+    'version'     => '1.1.1',
     'author'      => 'Leuchtfeuer Digital Marketing GmbH',
 ];
