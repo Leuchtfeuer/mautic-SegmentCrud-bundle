@@ -1,6 +1,6 @@
 {
   "name": "leuchtfeuer/mautic-segmentcrud-bundle",
-  "description": "Leuchtfeuer Segment CRUD plugin for Mautic",
+  "description": "Console command to create / modify / delete segments, or to clear their content",
   "license": "GPL-3.0",
   "type": "mautic-plugin",
   "homepage": "https://www.Leuchtfeuer.com",
