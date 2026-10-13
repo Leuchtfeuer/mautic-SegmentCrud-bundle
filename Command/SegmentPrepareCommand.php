@@ -7,12 +7,17 @@ namespace MauticPlugin\LeuchtfeuerSegmentCrudBundle\Command;
 use MauticPlugin\LeuchtfeuerSegmentCrudBundle\Dto\SegmentPrepareOptions;
 use MauticPlugin\LeuchtfeuerSegmentCrudBundle\Services\SegmentCrudIntegrationStatus;
 use MauticPlugin\LeuchtfeuerSegmentCrudBundle\Services\SegmentPrepareService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'leuchtfeuer:segment:prepare',
+    description: 'Create or update a segment by alias or id; optionally clear memberships (--clear deletes rows, --permanent-clear sets manually_removed)'
+)]
 class SegmentPrepareCommand extends Command
 {
     public function __construct(
@@ -24,8 +29,7 @@ class SegmentPrepareCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('leuchtfeuer:segment:prepare')
-            ->setDescription('Create or update a segment by alias or id; optionally clear memberships (--clear deletes rows, --permanent-clear sets manually_removed)')
+        $this
             ->addOption('alias', null, InputOption::VALUE_OPTIONAL, 'Segment alias; creates segment if missing (unless --nocreate)')
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'Segment id; must already exist')
             ->addOption('name', null, InputOption::VALUE_OPTIONAL, 'Name for create / update (default name on create: alias)')
@@ -102,9 +106,9 @@ class SegmentPrepareCommand extends Command
         $clearSummary = '';
         if ($result->clearedMembers > 0) {
             $clearSummary = match ($result->clearMode) {
-                'soft'       => sprintf(', %d membership row(s) deleted', $result->clearedMembers),
-                'permanent'  => sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers),
-                default      => '',
+                'soft'      => sprintf(', %d membership row(s) deleted', $result->clearedMembers),
+                'permanent' => sprintf(', %d membership row(s) marked as manually removed', $result->clearedMembers),
+                default     => '',
             };
         }
 
