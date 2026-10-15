@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace MauticPlugin\LeuchtfeuerSegmentCrudBundle\Integration;
 
 use Mautic\IntegrationsBundle\Integration\BasicIntegration;
+use Mautic\IntegrationsBundle\Integration\ConfigurationTrait;
 use Mautic\IntegrationsBundle\Integration\Interfaces\BasicInterface;
 
-final class SegmentCrudIntegration extends BasicIntegration implements BasicInterface
+class SegmentCrudIntegration extends BasicIntegration implements BasicInterface
 {
+    use ConfigurationTrait;
+
     public const NAME = 'SegmentCrud';
 
     public function getName(): string
