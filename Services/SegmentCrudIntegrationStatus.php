@@ -8,9 +8,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Mautic\PluginBundle\Entity\Integration;
 use MauticPlugin\LeuchtfeuerSegmentCrudBundle\Integration\SegmentCrudIntegration;
 
-final class SegmentCrudIntegrationStatus
+final readonly class SegmentCrudIntegrationStatus
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em)
     {
     }
 

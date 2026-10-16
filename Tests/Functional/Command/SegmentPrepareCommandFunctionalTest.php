@@ -10,7 +10,6 @@ use Mautic\LeadBundle\Entity\LeadList;
 use Mautic\LeadBundle\Model\ListModel;
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Entity\Plugin;
-use PHPUnit\Framework\Assert;
 use Symfony\Component\Console\Command\Command;
 
 final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
@@ -25,16 +24,16 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         [$segment]     = $this->createSegmentWithManualMembers($alias, 4);
         $resolvedAlias = (string) $segment->getAlias();
 
-        Assert::assertSame(4, $this->countActiveMembershipRows((int) $segment->getId()));
-        Assert::assertSame(4, $this->countTotalMembershipRows((int) $segment->getId()));
+        $this->assertSame(4, $this->countActiveMembershipRows((int) $segment->getId()));
+        $this->assertSame(4, $this->countTotalMembershipRows((int) $segment->getId()));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
             '--alias' => $resolvedAlias,
             '--clear' => true,
         ]);
 
-        Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        Assert::assertSame(0, $this->countTotalMembershipRows((int) $segment->getId()));
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame(0, $this->countTotalMembershipRows((int) $segment->getId()));
     }
 
     public function testClearSoftDeletesMembershipRowsWhenUsingId(): void
@@ -45,15 +44,15 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         [$segment] = $this->createSegmentWithManualMembers($alias, 3);
         $segmentId = (int) $segment->getId();
 
-        Assert::assertSame(3, $this->countTotalMembershipRows($segmentId));
+        $this->assertSame(3, $this->countTotalMembershipRows($segmentId));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
             '--id'    => (string) $segmentId,
             '--clear' => true,
         ]);
 
-        Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        Assert::assertSame(0, $this->countTotalMembershipRows($segmentId));
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame(0, $this->countTotalMembershipRows($segmentId));
     }
 
     public function testPrepareWithoutClearLeavesMembersUntouched(): void
@@ -70,11 +69,11 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
             '--name'  => 'Updated segment name',
         ]);
 
-        Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        Assert::assertSame(2, $this->countActiveMembershipRows($segmentId));
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame(2, $this->countActiveMembershipRows($segmentId));
 
         $this->em->refresh($segment);
-        Assert::assertSame('Updated segment name', $segment->getName());
+        $this->assertSame('Updated segment name', $segment->getName());
     }
 
     public function testCommandFailsWhenIntegrationIsNotPublished(): void
@@ -91,9 +90,9 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
             '--clear' => true,
         ]);
 
-        Assert::assertSame(Command::FAILURE, $tester->getStatusCode());
-        Assert::assertStringContainsStringIgnoringCase('disabled', $tester->getDisplay());
-        Assert::assertSame(2, $this->countActiveMembershipRows($segmentId));
+        $this->assertSame(Command::FAILURE, $tester->getStatusCode());
+        $this->assertStringContainsStringIgnoringCase('disabled', $tester->getDisplay());
+        $this->assertSame(2, $this->countActiveMembershipRows($segmentId));
     }
 
     public function testPermanentClearMarksManuallyRemovedButKeepsRows(): void
@@ -105,17 +104,17 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         $resolvedAlias = (string) $segment->getAlias();
         $segmentId     = (int) $segment->getId();
 
-        Assert::assertSame(4, $this->countActiveMembershipRows($segmentId));
-        Assert::assertSame(4, $this->countTotalMembershipRows($segmentId));
+        $this->assertSame(4, $this->countActiveMembershipRows($segmentId));
+        $this->assertSame(4, $this->countTotalMembershipRows($segmentId));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
             '--alias'           => $resolvedAlias,
             '--permanent-clear' => true,
         ]);
 
-        Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        Assert::assertSame(0, $this->countActiveMembershipRows($segmentId));
-        Assert::assertSame(4, $this->countTotalMembershipRows($segmentId));
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame(0, $this->countActiveMembershipRows($segmentId));
+        $this->assertSame(4, $this->countTotalMembershipRows($segmentId));
     }
 
     public function testCannotCombineClearAndPermanentClear(): void
@@ -132,9 +131,9 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
             '--permanent-clear' => true,
         ]);
 
-        Assert::assertSame(Command::INVALID, $tester->getStatusCode());
-        Assert::assertStringContainsStringIgnoringCase('not both', $tester->getDisplay());
-        Assert::assertSame(2, $this->countActiveMembershipRows((int) $segment->getId()));
+        $this->assertSame(Command::INVALID, $tester->getStatusCode());
+        $this->assertStringContainsStringIgnoringCase('not both', $tester->getDisplay());
+        $this->assertSame(2, $this->countActiveMembershipRows((int) $segment->getId()));
     }
 
     public function testNoCreateFailsWhenAliasDoesNotExist(): void
@@ -148,8 +147,8 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
             '--nocreate' => true,
         ]);
 
-        Assert::assertSame(Command::FAILURE, $tester->getStatusCode());
-        Assert::assertStringContainsString('does not exist', $tester->getDisplay());
+        $this->assertSame(Command::FAILURE, $tester->getStatusCode());
+        $this->assertStringContainsString('does not exist', $tester->getDisplay());
     }
 
     public function testCreatesSegmentThenClearsWhenAliasMissing(): void
@@ -163,13 +162,13 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
             '--clear' => true,
         ]);
 
-        Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
 
         /** @var LeadList|null $segment */
         $segment = $this->em->getRepository(LeadList::class)->findOneBy(['alias' => strtolower($newAlias)]);
-        Assert::assertInstanceOf(LeadList::class, $segment);
+        $this->assertInstanceOf(LeadList::class, $segment);
 
-        Assert::assertSame(0, $this->countTotalMembershipRows((int) $segment->getId()));
+        $this->assertSame(0, $this->countTotalMembershipRows((int) $segment->getId()));
     }
 
     public function testSmallBatchSizeStillClearsAllRows(): void
@@ -180,7 +179,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         [$segment]     = $this->createSegmentWithManualMembers($alias, 5);
         $resolvedAlias = (string) $segment->getAlias();
 
-        Assert::assertSame(5, $this->countTotalMembershipRows((int) $segment->getId()));
+        $this->assertSame(5, $this->countTotalMembershipRows((int) $segment->getId()));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
             '--alias'      => $resolvedAlias,
@@ -188,9 +187,9 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
             '--batch-size' => '2',
         ]);
 
-        Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        Assert::assertSame(0, $this->countTotalMembershipRows((int) $segment->getId()));
-        Assert::assertStringContainsString('batch', $tester->getDisplay());
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame(0, $this->countTotalMembershipRows((int) $segment->getId()));
+        $this->assertStringContainsString('batch', $tester->getDisplay());
     }
 
     public function testSmallBatchSizePermanentClearProcessesInChunks(): void
@@ -201,7 +200,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
         [$segment]     = $this->createSegmentWithManualMembers($alias, 5);
         $resolvedAlias = (string) $segment->getAlias();
 
-        Assert::assertSame(5, $this->countActiveMembershipRows((int) $segment->getId()));
+        $this->assertSame(5, $this->countActiveMembershipRows((int) $segment->getId()));
 
         $tester = $this->testSymfonyCommand('leuchtfeuer:segment:prepare', [
             '--alias'           => $resolvedAlias,
@@ -209,10 +208,10 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
             '--batch-size'      => '2',
         ]);
 
-        Assert::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        Assert::assertSame(0, $this->countActiveMembershipRows((int) $segment->getId()));
-        Assert::assertSame(5, $this->countTotalMembershipRows((int) $segment->getId()));
-        Assert::assertStringContainsString('batch', $tester->getDisplay());
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $this->assertSame(0, $this->countActiveMembershipRows((int) $segment->getId()));
+        $this->assertSame(5, $this->countTotalMembershipRows((int) $segment->getId()));
+        $this->assertStringContainsString('batch', $tester->getDisplay());
     }
 
     private function installSegmentCrudPlugin(bool $published): void
@@ -249,7 +248,7 @@ final class SegmentPrepareCommandFunctionalTest extends MauticMysqlTestCase
     private function createSegmentWithManualMembers(string $alias, int $leadCount): array
     {
         /** @var ListModel $listModel */
-        $listModel = static::getContainer()->get('mautic.lead.model.list');
+        $listModel = self::getContainer()->get('mautic.lead.model.list');
 
         $segment = new LeadList();
         $segment->setName('Functional '.$alias);

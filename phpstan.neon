@@ -1,0 +1,24 @@
+# Uses Mautic root's phpstan binary (see composer.json "phpstan" script).
+# Do not include plugin-local vendor/*.neon — that vendor tree is often absent in DDEV.
+
+parameters:
+    level: 6
+    tmpDir: .phpstan-cache
+    reportUnmatchedIgnoredErrors: false
+    treatPhpDocTypesAsCertain: false
+
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+
+    paths:
+        - .
+
+    excludePaths:
+        - vendor/* (?)
+        - .phpstan-cache/* (?)
+        - .phpunit.cache/* (?)
+
+    dynamicConstantNames:
+        - MAUTIC_ENV
+        - MAUTIC_TABLE_PREFIX
+        - MAUTIC_VERSION

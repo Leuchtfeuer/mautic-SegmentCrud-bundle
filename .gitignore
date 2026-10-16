@@ -3,3 +3,5 @@ composer.lock
 .idea
 .php-cs-fixer.cache
 .phpunit.result.cache
+.phpstan-cache/
+.phpunit.cache/

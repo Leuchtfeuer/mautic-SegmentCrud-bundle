@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Single PHPUnit config for local (from plugin dir or Mautic root) and CI.
+  Requires this bundle under plugins/ in a Mautic checkout.
+-->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    backupGlobals="false"
-    colors="true"
-    bootstrap="vendor/autoload.php"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
-    failOnRisky="true"
-    failOnWarning="true"
->
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         bootstrap="Tests/bootstrap.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         backupGlobals="false"
+         backupStaticProperties="false"
+         processIsolation="false"
+         stopOnFailure="false"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         failOnNotice="true"
+         beStrictAboutChangesToGlobalState="false">
+
     <testsuites>
         <testsuite name="unit">
             <directory>Tests/Unit</directory>
@@ -15,4 +29,34 @@
             <directory>Tests/Functional</directory>
         </testsuite>
     </testsuites>
+
+    <php>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
+        <env name="MAXMIND_LICENSE_KEY" value=""/>
+        <env name="KERNEL_CLASS" value="AppTestKernel" force="true"/>
+        <env name="APP_ENV" value="test" force="true"/>
+        <env name="APP_DEBUG" value="0" force="true"/>
+        <const name="IS_PHPUNIT" value="true"/>
+        <const name="MAUTIC_ENV" value="test"/>
+        <server name="APP_DEBUG" value="0"/>
+        <server name="APP_ENV" value="test" force="true"/>
+        <ini name="error_reporting" value="E_ALL"/>
+        <ini name="date.timezone" value="UTC"/>
+    </php>
+
+    <source>
+        <include>
+            <directory>.</directory>
+        </include>
+        <exclude>
+            <directory>Assets</directory>
+            <directory>Config</directory>
+            <directory>Tests</directory>
+            <directory>vendor</directory>
+        </exclude>
+    </source>
+
+    <extensions>
+        <bootstrap class="\Mautic\CoreBundle\Test\Extensions\DbPrefix\DbPrefix" />
+    </extensions>
 </phpunit>

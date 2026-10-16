@@ -1,4 +1,4 @@
-# Leuchtfeuer Segment CRUD
+# Plugin: Segment CRUD by Leuchtfeuer
 
 Console tooling to create or update lead segments by **alias** or **id**, and optionally **clear segment membership** in two ways: **`--clear`** deletes rows from `lead_lists_leads` (soft), or **`--permanent-clear`** sets `manually_removed = 1` on active rows while keeping the records (useful for Databridge-style / prep workflows where you need one or the other).
 
@@ -12,8 +12,8 @@ Console tooling to create or update lead segments by **alias** or **id**, and op
 > [!TIP]
 > Other releases of this plugin may target different Mautic versions.
 
-- Mautic **5.x**
-- PHP **8.1** or higher
+- Mautic **7.x**
+- PHP **8.2** or higher
 
 ## Installation
 
@@ -98,7 +98,7 @@ That runs PHPUnit with `--testsuite unit` (`Tests/Unit`).
 
 ### CI (GitHub Actions)
 
-Pull requests use the shared [mautic-ci-runner](https://github.com/Leuchtfeuer/mautic-ci-runner) workflow: PHP CS Fixer, PHPStan, Rector, Twig lint, unit tests, and functional tests (MySQL/MariaDB matrix) against supported Mautic 5.x and PHP versions.
+Pull requests use the shared [mautic-ci-runner](https://github.com/Leuchtfeuer/mautic-ci-runner) workflow: PHP CS Fixer, PHPStan, Rector, Twig lint, unit tests, and functional tests (MySQL/MariaDB matrix) against supported Mautic 7.x and PHP versions.
 
 ### Functional tests (local / full Mautic)
 
@@ -107,13 +107,7 @@ Functional tests extend `Mautic\CoreBundle\Test\MauticMysqlTestCase` and need a 
 ```bash
 ddev exec env APP_ENV=test APP_DEBUG=0 KERNEL_CLASS=AppTestKernel \
   bin/phpunit -d memory_limit=2G \
-  plugins/LeuchtfeuerSegmentCrudBundle/Tests/Functional
-```
-
-If you use **DDEV**, from the host:
-
-```bash
-export DB_SERVER_VERSION=10.3.0-MariaDB   # match your MariaDB; use e.g. 5.7 for MySQL 5.7
+  -c plugins/LeuchtfeuerSegmentCrudBundle/phpunit.xml --testsuite functional
 ```
 
 Functional tests also expect DB client tools (`mysqldump` / `mysql`) behaviour compatible with `MauticMysqlTestCase`; running inside DDEV avoids many host-only mismatches.
