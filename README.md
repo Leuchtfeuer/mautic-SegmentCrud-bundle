@@ -1,4 +1,4 @@
-# Leuchtfeuer Segment CRUD
+# Plugin: Segment CRUD by Leuchtfeuer
 
 Console tooling to create or update lead segments by **alias** or **id**, and optionally **clear segment membership** in two ways: **`--clear`** deletes rows from `lead_lists_leads` (soft), or **`--permanent-clear`** sets `manually_removed = 1` on active rows while keeping the records (useful for Databridge-style / prep workflows where you need one or the other).
 
